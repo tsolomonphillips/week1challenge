@@ -1,13 +1,24 @@
 package com.solstice.javatraining;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Stock
 {
+    private int stockId;
     private String symbol;
     private double price;
     private int volume;
     private Date date;
+
+    public int getStockId()
+    {
+        return stockId;
+    }
+
+    public void setStockId(int stockId)
+    {
+        this.stockId = stockId;
+    }
 
     public String getSymbol()
     {

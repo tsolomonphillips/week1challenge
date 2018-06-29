@@ -21,7 +21,7 @@ public class StockSymbols
     public static boolean insert(StockSymbols bean) throws Exception
     {
         String sqlQuery = "INSERT into stocksymbols (symbol, price, volume, date) " +
-                "VALUES (?, ?)";
+                "VALUES (?, ?, ?, ?)";
 
         ResultSet keys = null;
 
@@ -34,6 +34,7 @@ public class StockSymbols
             statement.setDouble(2, bean.getPrice());
             statement.setInt(3, bean.getVolume());
             statement.setDate(4, (java.sql.Date) bean.getDate());
+
             int affected = statement.executeUpdate();
 
             if (affected == 1)

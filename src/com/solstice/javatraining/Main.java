@@ -1,70 +1,61 @@
 package com.solstice.javatraining;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.*;
-import java.util.Date;
+import java.sql.Date;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main
 {
 
-    public static void main(String[] args) throws SQLException, IOException
+    public static void main(String[] args) throws Exception
     {
 
-        StockManager.displayAllRows();
+        //StockManager.displayAllRows();
 
         File jsonFile = new File("week1-stocks.json").getAbsoluteFile();
-
         ObjectMapper objectMapper = new ObjectMapper();
-
-        JsonFactory jsonFactory = objectMapper.getFactory();
-        JsonParser jParser;
 
         try
         {
-            jParser = jsonFactory.createParser(jsonFile);
-            JsonNode node = objectMapper.readTree(jParser);
+            List<Stock> stockList = objectMapper.readValue(jsonFile, new TypeReference<List<Stock>>(){});
+            Stock stock = new Stock();
 
-
-            //int count = node.get("count").asInt();
-            for (int i = 0; i < node.size(); i++ )
+            for (int i = 0; i < stockList.size(); i++)
             {
-                Stock stock = new Stock();
-                //System.out.print( "City: " + node.get("list").get(i).get("name").asText() );
-                //System.out.println( " , Absolute temperature: " +
-                        //node.get("list").get(i).get("main").get("temp").asText() );
+                stock.setSymbol(stockList.get(i).getSymbol());
+                stock.setPrice(stockList.get(i).getPrice());
+                stock.setVolume(stockList.get(i).getVolume());
+                stock.setDate(stockList.get(i).getDate());
 
-                String symbol = node.get(i).get("symbol").toString();
-                Double price = node.get(i).get("price").asDouble();
-                Integer volume = node.get(i).get("volume").asInt();
-
-                stock.setSymbol(symbol);
-                stock.setPrice(price);
-                stock.setVolume(volume);
-
-                try
-                {
-                    StockManager.insert(stock);
-                    //System.out.println(node.get(i));
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-
+                StockManager.insert(stock);
             }
 
-            jParser.close();
+            System.out.println("Data has been successfully inserted");
+
         }
         catch (IOException e)
         {
             e.printStackTrace();
+            e.getMessage();
         }
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter a stock symbol to lookup");
+        String stockSymbol = scanner.nextLine();
+
+        System.out.println("Enter a date range you would like to search (i.e, 2018-04-12");
+        String stockDate = scanner.nextLine();
+
+
+        System.out.println("Max price for the given date " + StockManager.getMaxPrice(Date.valueOf(stockDate), stockSymbol));
+        System.out.println("Min price for the given date " + StockManager.getMinPrice(Date.valueOf(stockDate), stockSymbol));
+        System.out.println("Total volume for the given date " + StockManager.getTotalVolume(Date.valueOf(stockDate), stockSymbol));
 
     }
 
