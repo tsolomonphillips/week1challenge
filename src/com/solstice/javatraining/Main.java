@@ -15,7 +15,7 @@ public class Main
     public static void main(String[] args) throws Exception
     {
 
-        //StockManager.displayAllRows();
+        // will parse the json file and insert it into your database
 
         File jsonFile = new File("week1-stocks.json").getAbsoluteFile();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -44,18 +44,27 @@ public class Main
             e.getMessage();
         }
 
+        // Collecting user input
+
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter a stock symbol to lookup");
-        String stockSymbol = scanner.nextLine();
-
-        System.out.println("Enter a date range you would like to search (i.e, 2018-04-12");
+        System.out.print("Enter a date range you would like to search (i.e, 2018-04-12): ");
         String stockDate = scanner.nextLine();
 
+        System.out.print("Enter a stock symbol to lookup: ");
+        String stockSymbol = scanner.nextLine();
 
-        System.out.println("Max price for the given date " + StockManager.getMaxPrice(Date.valueOf(stockDate), stockSymbol));
-        System.out.println("Min price for the given date " + StockManager.getMinPrice(Date.valueOf(stockDate), stockSymbol));
-        System.out.println("Total volume for the given date " + StockManager.getTotalVolume(Date.valueOf(stockDate), stockSymbol));
+        // correcting the user input if they put in a lowercase stock symbol
+        stockSymbol.toUpperCase();
+
+        System.out.println("\n" + "Highest price for " + stockSymbol + " on " +
+                stockDate + " : " + StockManager.getMaxPrice(Date.valueOf(stockDate), stockSymbol));
+
+        System.out.println("Lowest price for " + stockSymbol + " on " +
+                stockDate + " : " + StockManager.getMinPrice(Date.valueOf(stockDate), stockSymbol));
+
+        System.out.println("Total Volume price for " + stockSymbol + " on " +
+                stockDate + " : " + StockManager.getTotalVolume(Date.valueOf(stockDate), stockSymbol));
 
     }
 

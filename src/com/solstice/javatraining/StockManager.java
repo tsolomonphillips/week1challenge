@@ -74,44 +74,11 @@ public class StockManager
 
     }
 
-    public static Stock getRow(String symbol) throws SQLException
+    public static double getMaxPrice(Date date, String stockSymbol) throws SQLException
     {
-        String sqlQuery = "SELECT * FROM stocksymbols WHERE symbol = ?";
-        ResultSet resultSet = null;
-
-        try (Connection connection = DBUtil.getConnection(DBType.MYSQL);
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery))
-        {
-            preparedStatement.setString(1, symbol);
-
-            resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next())
-            {
-                Stock bean = new Stock();
-                bean.setSymbol(symbol);
-                bean.setPrice(resultSet.getDouble("price"));
-                bean.setVolume(resultSet.getInt("volume"));
-                bean.setDate(resultSet.getDate("date"));
-                return bean;
-            }
-            else
-            {
-                System.err.println("No rows were found");
-                return null;
-            }
-        }
-    }
-
-    public static Stock getMaxPrice(Date date, String stockSymbol) throws SQLException
-    {
-        String sqlQuery = "SELECT symbol, max(price) AS maxPrice, date FROM stocksymbols WHERE date = '?' AND symbol = '?'";
+        String sqlQuery = "SELECT max(price) AS maxPrice FROM stocksymbols WHERE date = ? AND symbol = ?";
 
         ResultSet resultSet = null;
-
-        Stock stock = new Stock();
-        stock.setDate(date);
-        stock.setSymbol(stockSymbol);
 
         try (Connection connection = DBUtil.getConnection(DBType.MYSQL);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery))
@@ -123,83 +90,76 @@ public class StockManager
 
             if (resultSet.next())
             {
-                stock.setDate(resultSet.getDate(1));
-                stock.setSymbol(resultSet.getString(2));
-                return stock;
+                double maxPrice = resultSet.getDouble(1);
+                //stock.setPrice(resultSet.getDouble(1));
+                return maxPrice;
             }
             else
             {
                 System.err.println("No rows were found");
-                return null;
+                return -1;
             }
 
         }
         catch (SQLException e)
         {
             System.err.println(e);
-            return null;
+            return -1;
         }
 
     }
 
-    public static Stock getMinPrice(Date date, String stockSymbol) throws SQLException
+
+    public static double getMinPrice(Date date, String stockSymbol) throws SQLException
     {
-        String sqlQuery = "SELECT symbol, MIN(price) AS maxPrice, date FROM stocksymbols WHERE date = '?' AND symbol = '?'";
+        String sqlQuery = "SELECT MIN(price) AS minPrice, date FROM stocksymbols WHERE date = ? AND symbol = ?";
 
         ResultSet resultSet = null;
 
         try (Connection connection = DBUtil.getConnection(DBType.MYSQL);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery))
         {
-//            preparedStatement.setDate(1, date);
-//            preparedStatement.setString(2, stockSymbol);
+            preparedStatement.setDate(1, date);
+            preparedStatement.setString(2, stockSymbol);
 
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next())
             {
-                Stock stock = new Stock();
-
-                stock.setDate(resultSet.getDate("date"));
-                stock.setSymbol(resultSet.getString("symbol"));
-
-                return stock;
+                double minPrice = resultSet.getDouble(1);
+                return minPrice;
             }
             else
             {
                 System.err.println("No rows were found");
-                return null;
+                return -1;
             }
         }
     }
 
-    public static Stock getTotalVolume(Date date, String stockSymbol) throws SQLException
+    public static int getTotalVolume(Date date, String stockSymbol) throws SQLException
     {
-        String sqlQuery = "SELECT symbol, SUM(volume) AS totalVolume, date FROM stocksymbols WHERE date = '?' AND symbol = '?'";
+        String sqlQuery = "SELECT SUM(volume) AS totalVolume FROM stocksymbols WHERE date = ? AND symbol = ?";
 
         ResultSet resultSet = null;
 
         try (Connection connection = DBUtil.getConnection(DBType.MYSQL);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery))
         {
-//            preparedStatement.setDate(1, date);
-//            preparedStatement.setString(2, stockSymbol);
+            preparedStatement.setDate(1, date);
+            preparedStatement.setString(2, stockSymbol);
 
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next())
             {
-                Stock stock = new Stock();
-
-                stock.setDate(resultSet.getDate("date"));
-                stock.setSymbol(resultSet.getString("symbol"));
-
-                return stock;
+                int totalVolume = resultSet.getInt(1);
+                return totalVolume;
             }
             else
             {
                 System.err.println("No rows were found");
-                return null;
+                return -1;
             }
         }
     }
