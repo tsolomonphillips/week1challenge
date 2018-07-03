@@ -1,6 +1,7 @@
 package com.solstice.javatraining;
 
 import java.sql.*;
+import java.text.NumberFormat;
 
 public class StockManager
 {
@@ -137,7 +138,7 @@ public class StockManager
         }
     }
 
-    public static int getTotalVolume(Date date, String stockSymbol) throws SQLException
+    public static String getTotalVolume(Date date, String stockSymbol) throws SQLException
     {
         String sqlQuery = "SELECT SUM(volume) AS totalVolume FROM stocksymbols WHERE date = ? AND symbol = ?";
 
@@ -153,14 +154,49 @@ public class StockManager
 
             if (resultSet.next())
             {
+                NumberFormat numberFormat = NumberFormat.getNumberInstance();
+                numberFormat.setGroupingUsed(true);
+
                 int totalVolume = resultSet.getInt(1);
-                return totalVolume;
+                return numberFormat.format(totalVolume);
             }
             else
             {
-                System.err.println("No rows were found");
+                return "No rows were found";
+            }
+        }
+    }
+
+    public static double getClosingPrice(Date date, String stockSymbol) throws SQLException
+    {
+        String sqlQuery = "SELECT price AS closingPrice FROM stocksymbols WHERE date = ? and symbol = ? " +
+                "ORDER BY price DESC LIMIT 1";
+
+        ResultSet resultSet = null;
+
+        try (Connection connection = DBUtil.getConnection(DBType.MYSQL);
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery))
+        {
+            preparedStatement.setDate(1, date);
+            preparedStatement.setString(2, stockSymbol);
+
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next())
+            {
+                double closingPrice = resultSet.getDouble(1);
+                return closingPrice;
+            }
+            else
+            {
+                System.out.println("No rows were found");
                 return -1;
             }
         }
+        catch (SQLException e)
+        {
+            DBUtil.processException(e);
+        }
+        return -1;
     }
 }
